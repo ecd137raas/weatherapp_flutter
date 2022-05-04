@@ -1,11 +1,10 @@
-// ignore_for_file: use_key_in_widget_constructors
 import 'package:flutter/material.dart';
-import '../models/previsao_hora.dart';
+import 'package:weather/models/previsao_hora.dart';
 
 class ProximasTemperaturas extends StatelessWidget {
-  final List<PreHora> valores;
+  final List<PrevisaoHora> previsoes;
 
-  const ProximasTemperaturas({Key? key, required this.valores})
+  const ProximasTemperaturas({Key? key, required this.previsoes})
       : super(key: key);
 
   Card criarCardPre(int i) {
@@ -13,13 +12,13 @@ class ProximasTemperaturas extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          Image(image: AssetImage('images/${valores[i].numIcon}.png')),
+          Image(image: AssetImage('images/${previsoes[i].numIcon}.png')),
           const Padding(padding: EdgeInsets.all(2)),
-          Text(valores[i].horario),
+          Text(previsoes[i].horario),
           const Padding(padding: EdgeInsets.all(4)),
-          Text('${valores[i].temp}ºC'),
+          Text('${previsoes[i].temp.toInt()}ºC'),
           const Padding(padding: EdgeInsets.all(5)),
-          Text(valores[i].descricao),
+          Text(previsoes[i].descricao),
         ],
       ),
     );
@@ -29,7 +28,7 @@ class ProximasTemperaturas extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: ListView.builder(
-        itemCount: valores.length,
+        itemCount: previsoes.length,
         shrinkWrap: true,
         itemBuilder: (context, i) {
           return criarCardPre(i);

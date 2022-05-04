@@ -1,8 +1,9 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:weather/models/previsao_hora.dart';
 import 'package:weather/services/previsao_services.dart';
 import 'package:weather/widgets/proximas_temperaturas.dart';
 import 'package:weather/widgets/resumo.dart';
-import '../models/previsao_hora.dart';
 
 // ignore: use_key_in_widget_constructors
 class Home extends StatefulWidget {
@@ -11,13 +12,21 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  late List<PreHora> ultimasTemp;
+  late Future<List<PrevisaoHora>> ultimasPrevisoes;
 
   @override
   void initState() {
     super.initState();
-    PreServices service = PreServices();
-    ultimasTemp = service.recuperarUltimasPre();
+    carregarPrevisoes();
+  }
+
+  void carregarPrevisoes() {
+    PrevisaoServices service = PrevisaoServices();
+    ultimasPrevisoes = service.recuperarUltimasPrevisao();
+  }
+
+  Future<void> atualizarPrevisoes() async {
+    setState(() => carregarPrevisoes());
   }
 
   @override
@@ -28,22 +37,48 @@ class _HomeState extends State<Home> {
         centerTitle: true,
       ),
       body: Center(
-          child: Column(
-        children: [
-          const Resumo(
-            cidade: 'Jundiaí',
-            descricao: 'Nublado',
-            tempAtual: 23,
-            tempMax: 28,
-            tempMin: 18,
-            numIcon: 6,
-          ),
-          const Padding(padding: EdgeInsets.all(10)),
-          ProximasTemperaturas(
-            valores: ultimasTemp,
-          )
-        ],
-      )),
+        child: FutureBuilder<List<PrevisaoHora>>(
+            future: ultimasPrevisoes,
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                List<PrevisaoHora>? previsoes = snapshot.data;
+                double tempAtual = previsoes![0].temp;
+                double minTemp = double.maxFinite;
+                double maxTemp = double.negativeInfinity;
+                for (var obj in previsoes) {
+                  if (obj.temp < minTemp) {
+                    minTemp = obj.temp;
+                  }
+                  if (obj.temp > maxTemp) {
+                    maxTemp = obj.temp;
+                  }
+                }
+                String desc = previsoes[0].descricao;
+                int numIco = previsoes[0].numIcon;
+
+                return Column(
+                  children: [
+                    Resumo(
+                      cidade: 'Jundiaí',
+                      descricao: desc,
+                      tempAtual: tempAtual,
+                      tempMax: maxTemp,
+                      tempMin: minTemp,
+                      numIcon: numIco,
+                    ),
+                    const Padding(padding: EdgeInsets.all(10)),
+                    ProximasTemperaturas(
+                      previsoes: previsoes.sublist(1, previsoes.length),
+                    ),
+                  ],
+                );
+              } else if (snapshot.hasError) {
+                return const Text('Falha ao conectar no servidor, aguarde!');
+              }
+
+              return const CircularProgressIndicator();
+            }),
+      ),
     );
   }
 }

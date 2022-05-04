@@ -4,9 +4,9 @@ import 'package:weather/controllers/tema_controller.dart';
 class Resumo extends StatelessWidget {
   final String cidade;
   final String descricao;
-  final int tempAtual;
-  final int tempMin;
-  final int tempMax;
+  final double tempAtual;
+  final double tempMin;
+  final double tempMax;
   final int numIcon;
 
   const Resumo(
@@ -52,7 +52,7 @@ class Resumo extends StatelessWidget {
             Image(image: AssetImage('images/$numIcon.png')),
             const Padding(padding: EdgeInsets.all(2)),
             Text(
-              '$tempAtual ºC',
+              '${tempAtual.toInt()}ºC',
               style: const TextStyle(fontSize: 38),
             ),
             const VerticalDivider(
@@ -61,7 +61,7 @@ class Resumo extends StatelessWidget {
             ),
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: [Text('$tempMax ºC'), Text('$tempMin ºC')],
+              children: [Text('${tempMax.toInt()}ºC'), Text('${tempMin.toInt()}ºC')],
             )
           ],
         )),
